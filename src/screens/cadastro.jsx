@@ -1,12 +1,16 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api.js";
 import "./Auth.css";
 
-function Cadastro({ irParaLogin }) {
+function Cadastro() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [confirmarSenha, setConfirmarSenha] = useState("");
 
-  function criarConta(event) {
+  const navigate = useNavigate();
+
+  async function criarConta(event) {
     event.preventDefault();
 
     if (!email || !senha || !confirmarSenha) {
@@ -19,33 +23,44 @@ function Cadastro({ irParaLogin }) {
       return;
     }
 
-    alert("Conta criada com sucesso!");
+    try {
+      await api.post("/users/register", {
+        email,
+        password: senha,
+      });
+
+      alert("Conta criada com sucesso!");
+
+      // Vai para a tela de login após criar a conta
+      navigate("/login");
+
+    } catch (error) {
+      console.error("Erro:", error);
+
+      alert(
+        error.response?.data?.message ||
+        "Não foi possível criar a conta."
+      );
+    }
   }
 
   return (
     <main className="auth-page">
-      <div className="auth-decoration auth-decoration-1"></div>
-      <div className="auth-decoration auth-decoration-2"></div>
-
       <section className="auth-card">
-        <div className="auth-logo">
-        </div>
 
-        <p className="auth-subtitle">Jardim Secreto</p>
-
-        <h1>Crie sua conta</h1>
-
-        <p className="auth-description">
-          Cadastre-se para fazer parte do nosso jardim.
+        <p className="auth-subtitle">
+          Jardim Secreto
         </p>
 
+        <h1>Criar conta</h1>
+
         <form onSubmit={criarConta}>
+
           <div className="form-group">
-            <label htmlFor="email">E-mail</label>
+            <label>E-mail</label>
 
             <input
               type="email"
-              id="email"
               placeholder="Digite seu e-mail"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -53,11 +68,10 @@ function Cadastro({ irParaLogin }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="senha">Senha</label>
+            <label>Senha</label>
 
             <input
               type="password"
-              id="senha"
               placeholder="Digite sua senha"
               value={senha}
               onChange={(event) => setSenha(event.target.value)}
@@ -65,12 +79,11 @@ function Cadastro({ irParaLogin }) {
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmarSenha">Confirmar senha</label>
+            <label>Confirmar senha</label>
 
             <input
               type="password"
-              id="confirmarSenha"
-              placeholder="Digite sua senha novamente"
+              placeholder="Confirme sua senha"
               value={confirmarSenha}
               onChange={(event) => setConfirmarSenha(event.target.value)}
             />
@@ -79,14 +92,21 @@ function Cadastro({ irParaLogin }) {
           <button type="submit" className="auth-button">
             Criar conta
           </button>
+
         </form>
 
+        {/* LINK PARA VOLTAR AO LOGIN */}
         <p className="change-page">
           Já possui uma conta?{" "}
-          <button type="button" onClick={irParaLogin}>
+
+          <button
+            type="button"
+            onClick={() => navigate("/login")}
+          >
             Entrar
           </button>
         </p>
+
       </section>
     </main>
   );

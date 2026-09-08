@@ -1,23 +1,20 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import heroImg from './assets/hero.png'
-import Login from "./screens/login"
-import './App.css'
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import Cadastro from "./screens/Cadastro";
+import Login from "./screens/login";
+import Cadastro from "./screens/cadastro";
+import Home from "./screens/home"
 
 function App() {
-  const [pagina, setPagina] = useState("login");
-
   return (
-    <>
-      {pagina === "login" ? (
-        <Login irParaCadastro={() => setPagina("cadastro")} />
-      ) : (
-        <Cadastro irParaLogin={() => setPagina("login")} />
-      )}
-    </>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Login />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/cadastro" element={<Cadastro />} />
+        <Route path="/home" element={<Home />} />
+        
+      </Routes>
+    </BrowserRouter>
   );
 }
 

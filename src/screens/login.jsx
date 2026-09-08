@@ -1,11 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import api from "../services/api.js";
 import "./Auth.css";
 
-function Login({ irParaCadastro }) {
+function Login() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
 
-  function fazerLogin(event) {
+  const navigate = useNavigate();
+
+  async function fazerLogin(event) {
     event.preventDefault();
 
     if (!email || !senha) {
@@ -13,25 +17,40 @@ function Login({ irParaCadastro }) {
       return;
     }
 
-    alert("Login realizado!");
+    try {
+      const response = await api.post("/users/login", {
+        email,
+        password: senha,
+      });
+
+      const data = response.data;
+
+      localStorage.setItem("token", data.token);
+
+      alert("Login realizado com sucesso!");
+
+      // Depois do login, pode navegar para a home
+      navigate("/home");
+
+    } catch (error) {
+      console.error("Erro:", error);
+
+      alert(
+        error.response?.data?.message ||
+        "Não foi possível conectar ao servidor."
+      );
+    }
   }
 
   return (
     <main className="auth-page">
-      <div className="auth-decoration auth-decoration-1"></div>
-      <div className="auth-decoration auth-decoration-2"></div>
-
       <section className="auth-card">
-        <div className="auth-logo">
-        </div>
 
-        <p className="auth-subtitle">Jardim Secreto</p>
+        <p className="auth-subtitle">
+          Jardim Secreto
+        </p>
 
         <h1>Entre na sua conta</h1>
-
-        <p className="auth-description">
-          Bem-vindo de volta! Entre para continuar.
-        </p>
 
         <form onSubmit={fazerLogin}>
           <div className="form-group">
@@ -58,21 +77,25 @@ function Login({ irParaCadastro }) {
             />
           </div>
 
-          <button type="button" className="forgot-password">
-            Esqueci minha senha
-          </button>
-
-          <button type="submit" className="auth-button">
+          <button
+            type="submit"
+            className="auth-button"
+          >
             Entrar
           </button>
         </form>
 
         <p className="change-page">
           Ainda não possui uma conta?{" "}
-          <button type="button" onClick={irParaCadastro}>
+
+          <button
+            type="button"
+            onClick={() => navigate("/cadastro")}
+          >
             Criar conta
           </button>
         </p>
+
       </section>
     </main>
   );
